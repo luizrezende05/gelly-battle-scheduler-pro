@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from 'react';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
@@ -41,6 +40,10 @@ function App() {
   const [additionalInfo, setAdditionalInfo] = useState<string>("");
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [matchToDelete, setMatchToDelete] = useState<string | null>(null);
+  const timeSlots = [
+    '07:00', '08:00', '09:00', '10:00', '11:00', '12:00', '13:00', '14:00', 
+    '15:00', '16:00', '17:00', '18:00', '19:00', '20:00', '21:00', '22:00'
+  ];
 
   useEffect(() => {
     const savedMatches = localStorage.getItem('matches');
@@ -239,7 +242,7 @@ function App() {
                     <SelectValue placeholder="Selecione um horário" />
                   </SelectTrigger>
                   <SelectContent>
-                    {['08:00', '09:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00', '17:00', '18:00'].map(t => (
+                    {timeSlots.map(t => (
                       <SelectItem key={t} value={t}>
                         {t}
                       </SelectItem>
