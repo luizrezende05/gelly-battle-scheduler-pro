@@ -17,10 +17,11 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Calendar } from "@/components/ui/calendar";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
-import { CalendarIcon, Trash2 } from "lucide-react";
+import { CalendarIcon, Menu, Trash2 } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Toaster } from "@/components/ui/sonner";
 import { toast } from "sonner";
+import { useIsMobile } from '@/hooks/use-mobile';
 
 type Match = {
   id: string;
@@ -32,6 +33,7 @@ type Match = {
 };
 
 function App() {
+  const isMobile = useIsMobile();
   const [matches, setMatches] = useState<Match[]>([]);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [date, setDate] = useState<Date | undefined>(new Date());
@@ -140,10 +142,10 @@ function App() {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-red-50 to-white">
-      <div className="container mx-auto py-8 px-4">
-        <h1 className="text-3xl font-bold text-red-800 mb-8 text-center">Agenda de Partidas</h1>
+      <div className={cn("container mx-auto py-4 md:py-8 px-2 md:px-4")}>
+        <h1 className="text-2xl md:text-3xl font-bold text-red-800 mb-4 md:mb-8 text-center">Agenda de Partidas</h1>
         
-        <div className="flex justify-end mb-6">
+        <div className="flex justify-end mb-4 md:mb-6">
           <Button 
             onClick={() => setIsDialogOpen(true)}
             className="bg-red-600 hover:bg-red-700"
@@ -153,7 +155,7 @@ function App() {
         </div>
 
         {matches.length === 0 ? (
-          <div className="text-center py-12 bg-white rounded-lg shadow-sm border border-red-100">
+          <div className="text-center py-8 md:py-12 bg-white rounded-lg shadow-sm border border-red-100">
             <p className="text-gray-500">Nenhuma partida agendada</p>
             <Button 
               onClick={() => setIsDialogOpen(true)} 
@@ -164,25 +166,25 @@ function App() {
             </Button>
           </div>
         ) : (
-          <div className="space-y-8">
+          <div className="space-y-4 md:space-y-8">
             {Object.entries(matchesByDate).map(([dateKey, dateMatches]) => (
-              <div key={dateKey} className="bg-white rounded-lg shadow-sm p-4 border border-red-100">
-                <h2 className="text-xl font-medium mb-4 pb-2 border-b border-red-100 text-red-700">
+              <div key={dateKey} className="bg-white rounded-lg shadow-sm p-3 md:p-4 border border-red-100">
+                <h2 className="text-lg md:text-xl font-medium mb-3 md:mb-4 pb-2 border-b border-red-100 text-red-700">
                   {format(new Date(dateKey), 'EEEE, dd/MM/yyyy', { locale: ptBR })}
                 </h2>
-                <div className="space-y-4">
+                <div className="space-y-3 md:space-y-4">
                   {dateMatches.map(match => (
-                    <div key={match.id} className="flex items-start justify-between p-3 hover:bg-red-50 rounded-md transition-colors">
-                      <div>
-                        <div className="flex items-center gap-3 mb-1">
-                          <span className="text-lg font-medium">{match.time}</span>
+                    <div key={match.id} className="flex items-start justify-between p-2 md:p-3 hover:bg-red-50 rounded-md transition-colors">
+                      <div className={isMobile ? "w-[85%]" : ""}>
+                        <div className={`flex ${isMobile ? "flex-col gap-1" : "items-center gap-3"} mb-1`}>
+                          <span className="text-base md:text-lg font-medium">{match.time}</span>
                           <span className="font-medium">{match.customerName}</span>
-                          <span className="bg-red-100 text-red-800 text-xs px-2 py-1 rounded-full">
+                          <span className="bg-red-100 text-red-800 text-xs px-2 py-1 rounded-full w-fit">
                             {match.playerCount} jogadores
                           </span>
                         </div>
                         {match.additionalInfo && (
-                          <p className="text-sm text-gray-600 mt-1">{match.additionalInfo}</p>
+                          <p className="text-xs md:text-sm text-gray-600 mt-1">{match.additionalInfo}</p>
                         )}
                       </div>
                       <Button 
@@ -203,7 +205,7 @@ function App() {
 
         {/* Add Match Dialog */}
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-          <DialogContent className="sm:max-w-[425px]">
+          <DialogContent className={cn("sm:max-w-[425px]", isMobile && "w-[95%] p-4")}>
             <DialogHeader>
               <DialogTitle>Agendar Nova Partida</DialogTitle>
               <DialogDescription>
@@ -227,12 +229,13 @@ function App() {
                       {date ? format(date, 'dd/MM/yyyy') : <span>Selecione uma data</span>}
                     </Button>
                   </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0">
+                  <PopoverContent className="w-auto p-0" align={isMobile ? "center" : "start"}>
                     <Calendar
                       mode="single"
                       selected={date}
                       onSelect={setDate}
                       initialFocus
+                      className={isMobile ? "rounded-md border-0" : ""}
                     />
                   </PopoverContent>
                 </Popover>
@@ -244,7 +247,7 @@ function App() {
                   <SelectTrigger id="time" className="border-red-200">
                     <SelectValue placeholder="Selecione um horário" />
                   </SelectTrigger>
-                  <SelectContent>
+                  <SelectContent className={isMobile ? "max-h-[200px]" : ""}>
                     {timeSlots.map(t => (
                       <SelectItem key={t} value={t}>
                         {t}
@@ -286,7 +289,7 @@ function App() {
                 />
               </div>
             </div>
-            <DialogFooter>
+            <DialogFooter className={isMobile ? "flex-col space-y-2" : ""}>
               <Button 
                 variant="outline" 
                 onClick={() => setIsDialogOpen(false)}
@@ -303,14 +306,14 @@ function App() {
 
         {/* Delete Confirmation Dialog */}
         <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
-          <DialogContent className="sm:max-w-[425px]">
+          <DialogContent className={cn("sm:max-w-[425px]", isMobile && "w-[95%] p-4")}>
             <DialogHeader>
               <DialogTitle>Confirmar Exclusão</DialogTitle>
               <DialogDescription>
                 Tem certeza que deseja remover esta partida da agenda?
               </DialogDescription>
             </DialogHeader>
-            <DialogFooter>
+            <DialogFooter className={isMobile ? "flex-col space-y-2" : ""}>
               <Button 
                 variant="outline" 
                 onClick={() => setIsDeleteDialogOpen(false)}
